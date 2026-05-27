@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
-import { verifyToken } from './lib/auth'
+import { jwtVerify } from 'jose'
 
-export function middleware(request) {
+const JWT_SECRET = process.env.JWT_SECRET || 'invoicecontent-super-secret-jwt-key-change-in-production-2024'
+
+export async function middleware(request) {
   const { pathname } = request.nextUrl
 
   // Protect /dashboard routes
   if (pathname.startsWith('/dashboard')) {
-    const cookieHeader = request.headers.get('cookie') || ''
-    const match = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/)
-    const token = match ? match[1] : null
+    const token = request.cookies.get('token')?.value
 
     if (!token) {
       const loginUrl = new URL('/login', request.url)
@@ -16,8 +16,9 @@ export function middleware(request) {
       return NextResponse.redirect(loginUrl)
     }
 
-    const payload = verifyToken(token)
-    if (!payload) {
+    try {
+      await jwtVerify(token, new TextEncoder().encode(JWT_SECRET))
+    } catch {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
