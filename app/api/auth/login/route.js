@@ -30,6 +30,6 @@ export async function POST(request) {
     return response
   } catch (error) {
     console.error('[Login] Error:', error)
-    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+    return NextResponse.json({ error: 'Erro interno do servidor', detail: error?.message, stack: error?.stack?.split('\n').slice(0,5) }, { status: 500 })
   }
 }
