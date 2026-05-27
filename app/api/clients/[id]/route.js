@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const db = getDb()
+    const db = await getDb()
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(params.id)
 
     if (!client) {
@@ -33,7 +33,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json()
-    const db = getDb()
+    const db = await getDb()
 
     const existing = db.prepare('SELECT * FROM clients WHERE id = ?').get(params.id)
     if (!existing) {

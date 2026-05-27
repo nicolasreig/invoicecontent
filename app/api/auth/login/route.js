@@ -11,7 +11,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Email e senha são obrigatórios' }, { status: 400 })
     }
 
-    const db = getDb()
+    const db = await getDb()
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim())
 
     if (!user) {

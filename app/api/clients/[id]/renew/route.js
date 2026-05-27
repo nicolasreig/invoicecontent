@@ -25,7 +25,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Nova data de término é obrigatória' }, { status: 400 })
     }
 
-    const db = getDb()
+    const db = await getDb()
     const existing = db.prepare('SELECT * FROM clients WHERE id = ?').get(params.id)
 
     if (!existing) {

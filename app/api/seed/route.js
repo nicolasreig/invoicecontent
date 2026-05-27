@@ -4,7 +4,7 @@ import getDb from '@/lib/db'
 export async function GET() {
   try {
     // getDb() already calls seedDefaultUser on init
-    const db = getDb()
+    const db = await getDb()
     const user = db.prepare('SELECT id, name, email, created_at FROM users WHERE email = ?').get('admin@invoicecontent.com')
 
     if (user) {

@@ -17,7 +17,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Motivo de cancelamento é obrigatório' }, { status: 400 })
     }
 
-    const db = getDb()
+    const db = await getDb()
     const existing = db.prepare('SELECT * FROM clients WHERE id = ?').get(params.id)
 
     if (!existing) {

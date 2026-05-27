@@ -17,7 +17,7 @@ export async function GET(request) {
     const scope = searchParams.get('scope') // 'rd' | 'social' | 'blog' | 'site' | 'brand' | 'traffic' | null
     const status = searchParams.get('status') // 'active' | 'cancelled' | 'renewed' | null
 
-    const db = getDb()
+    const db = await getDb()
 
     let query = `
       SELECT c.*
@@ -110,7 +110,7 @@ export async function POST(request) {
     }
 
     const portal_token = uuidv4()
-    const db = getDb()
+    const db = await getDb()
 
     const insert = db.prepare(`
       INSERT INTO clients (

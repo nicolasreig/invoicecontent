@@ -2,7 +2,14 @@
 const nextConfig = {
   basePath: '/sistema',
   experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3'],
+    serverComponentsExternalPackages: ['sql.js'],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push('sql.js')
+    }
+    return config
   },
 }
 
