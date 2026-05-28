@@ -74,50 +74,32 @@ function Sidebar({ user, onLogout }) {
         <div className="flex items-center gap-3 px-3 py-2 mb-2">
           <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-pink-600 text-xs font-bold uppercase">
-              {user?.name?.[0] || 'U'}
+              {user?.name?.[0] || 'N'}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Usuário'}</p>
-            <p className="text-xs text-gray-400 truncate">{user?.email || ''}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Nicolas'}</p>
+            <p className="text-xs text-gray-400 truncate">{user?.email || 'nicolas@invoicecontent.com'}</p>
           </div>
         </div>
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Sair
-        </button>
       </div>
     </aside>
   )
 }
 
 export default function DashboardLayout({ children }) {
-  const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState({ name: 'Nicolas', email: 'nicolas@invoicecontent.com' })
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((r) => r.json())
-      .then((data) => {
-        if (data.user) setUser(data.user)
-        else router.push('/login')
-      })
-      .catch(() => router.push('/login'))
-  }, [router])
-
-  async function handleLogout() {
-    await fetch('/api/auth/me', { method: 'DELETE' })
-    router.push('/login')
-  }
+      .then((data) => { if (data.user) setUser(data.user) })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar user={user} onLogout={handleLogout} />
+      <Sidebar user={user} onLogout={() => {}} />
       <main className="flex-1 overflow-auto">
         {children}
       </main>
