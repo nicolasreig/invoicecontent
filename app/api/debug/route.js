@@ -1,42 +1,38 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs'
+import getDb from '@/lib/db'
 
 export async function GET() {
+  const dbPath = process.env.DB_PATH
+    ? path.resolve(process.env.DB_PATH)
+    : path.join(process.cwd(), 'data', 'db.json')
+
   const info = {
     cwd: process.cwd(),
     nodeVersion: process.version,
     env: process.env.NODE_ENV,
-    dbPath: process.env.DB_PATH || path.join(process.cwd(), 'data', 'invoicecontent.db'),
+    dbPath,
+    dbFileExists: fs.existsSync(dbPath),
   }
 
-  // Test sql.js loading
   try {
-    const initSqlJs = require('sql.js')
-    const wasmPath = path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', 'sql-wasm.wasm')
-    info.wasmExists = fs.existsSync(wasmPath)
-    info.wasmPath = wasmPath
-
-    const SQL = await initSqlJs({
-      locateFile: (file) => path.join(process.cwd(), 'node_modules', 'sql.js', 'dist', file),
-    })
-    const db = new SQL.Database()
-    db.run('CREATE TABLE test (id INTEGER)')
-    db.close()
-    info.sqljs = 'OK'
+    const db = await getDb()
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get('nicolas@invoicecontent.com')
+    info.adminUserFound = !!user
+    if (user) info.adminUser = { id: user.id, email: user.email, hasHash: !!user.password_hash }
   } catch (e) {
-    info.sqljs = 'ERROR: ' + e.message
+    info.dbError = e.message
   }
 
-  // Test data dir write
   try {
-    const dataDir = path.join(process.cwd(), 'data')
-    fs.mkdirSync(dataDir, { recursive: true })
-    fs.writeFileSync(path.join(dataDir, 'test.txt'), 'ok')
-    fs.unlinkSync(path.join(dataDir, 'test.txt'))
-    info.fsWrite = 'OK'
+    if (fs.existsSync(dbPath)) {
+      const raw = JSON.parse(fs.readFileSync(dbPath, 'utf8'))
+      info.usersOnDisk = raw.users?.length ?? 0
+      info.usersOnDiskEmails = raw.users?.map(u => u.email) ?? []
+    }
   } catch (e) {
-    info.fsWrite = 'ERROR: ' + e.message
+    info.diskReadError = e.message
   }
 
   return NextResponse.json(info)

@@ -12,7 +12,10 @@ export async function POST(request) {
     }
 
     const db = await getDb()
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim())
+    const searchEmail = email.toLowerCase().trim()
+    console.log('[Login] searching for email:', searchEmail)
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(searchEmail)
+    console.log('[Login] user found:', user ? { id: user.id, email: user.email } : null)
 
     if (!user) {
       return NextResponse.json({ error: 'Email ou senha inválidos' }, { status: 401 })
