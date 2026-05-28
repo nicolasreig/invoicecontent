@@ -103,12 +103,9 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     fetch('/api/auth/me')
       .then((r) => r.json())
-      .then((data) => {
-        if (data.user) setUser(data.user)
-        else router.push('/login')
-      })
-      .catch(() => router.push('/login'))
-  }, [router])
+      .then((data) => { if (data.user) setUser(data.user) })
+      .catch(() => {})
+  }, [])
 
   async function handleLogout() {
     await fetch('/api/auth/me', { method: 'DELETE' })
